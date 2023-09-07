@@ -49,3 +49,4 @@ sct_example_data/
 # Documentation
 documentation/build
 
+builds/*

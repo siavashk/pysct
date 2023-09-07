@@ -130,9 +130,9 @@ HoughTransform2DCirclesImageFilter< TInputPixelType, TOutputPixelType >
       double Vy = grad[1];
 
       // if the gradient is not flat
-      if ( ( vcl_fabs(Vx) > 1 ) || ( vcl_fabs(Vy) > 1 ) )
+      if ( ( std::fabs(Vx) > 1 ) || ( std::fabs(Vy) > 1 ) )
         {
-        double norm = vcl_sqrt(Vx * Vx + Vy * Vy);
+        double norm = std::sqrt(Vx * Vx + Vy * Vy);
         Vx /= norm;
         Vy /= norm;
 
@@ -143,10 +143,10 @@ HoughTransform2DCirclesImageFilter< TInputPixelType, TOutputPixelType >
 
           do
             {
-            index[0] = (IndexValueType)( point[0] - i * ( Vx * vcl_cos(angle) + Vy * vcl_sin(angle) ) );
-            index[1] = (IndexValueType)( point[1] - i * ( Vx * vcl_sin(angle) + Vy * vcl_cos(angle) ) );
+            index[0] = (IndexValueType)( point[0] - i * ( Vx * std::cos(angle) + Vy * std::sin(angle) ) );
+            index[1] = (IndexValueType)( point[1] - i * ( Vx * std::sin(angle) + Vy * std::cos(angle) ) );
 
-            distance = vcl_sqrt( ( index[1] - point[1] ) * ( index[1] - point[1] )
+            distance = std::sqrt( ( index[1] - point[1] ) * ( index[1] - point[1] )
                                  + ( index[0] - point[0] ) * ( index[0] - point[0] ) );
 
             if ( outputImage->GetRequestedRegion().IsInside(index) )

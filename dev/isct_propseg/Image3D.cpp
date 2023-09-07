@@ -285,9 +285,9 @@ void Image3D::TransformMeshToBinaryImage(Mesh* m, string filename, OrientationTy
         //
         // Transfer the cells from the vtkPolyData into the itk::Mesh
         //
-        vtkCellArray * triangleStrips = polyData->GetStrips();
-        vtkIdType  * cellPoints;
-        vtkIdType    numberOfCellPoints;
+        vtkCellArray* triangleStrips = polyData->GetStrips();
+        const vtkIdType* cellPoints;
+        vtkIdType numberOfCellPoints;
 
         //
         // First count the total number of triangles from all the triangle strips.
@@ -299,11 +299,11 @@ void Image3D::TransformMeshToBinaryImage(Mesh* m, string filename, OrientationTy
             numberOfTriangles += numberOfCellPoints-2;
         }
 
-        vtkCellArray * polygons = polyData->GetPolys();
+        vtkCellArray* polygons = polyData->GetPolys();
         polygons->InitTraversal();
-        while( polygons->GetNextCell( numberOfCellPoints, cellPoints ) )
+        while(polygons->GetNextCell(numberOfCellPoints, cellPoints))
         {
-            if( numberOfCellPoints == 3 )
+            if(numberOfCellPoints == 3 )
             {
                 numberOfTriangles ++;
             }
@@ -328,16 +328,13 @@ void Image3D::TransformMeshToBinaryImage(Mesh* m, string filename, OrientationTy
         {
             unsigned int numberOfTrianglesInStrip = numberOfCellPoints - 2;
 
-            unsigned long pointIds[3];
-            pointIds[0] = cellPoints[0];
-            pointIds[1] = cellPoints[1];
-            pointIds[2] = cellPoints[2];
+            unsigned __int64 pointIds[3] = { cellPoints[0], cellPoints[1], cellPoints[2] };
 
             for( unsigned int t=0; t < numberOfTrianglesInStrip; t++ )
             {
                 MeshTypeB::CellAutoPointer c;
                 TriangleCellType * tcell = new TriangleCellType;
-                tcell->SetPointIds( pointIds );
+                tcell->SetPointIds( pointIds);
                 c.TakeOwnership( tcell );
                 mesh->SetCell( cellId, c );
                 cellId++;
@@ -357,7 +354,7 @@ void Image3D::TransformMeshToBinaryImage(Mesh* m, string filename, OrientationTy
             }
             MeshTypeB::CellAutoPointer c;
             TriangleCellType * t = new TriangleCellType;
-            t->SetPointIds( (unsigned long*)cellPoints );
+            t->SetPointIds( (unsigned __int64*)cellPoints );
             c.TakeOwnership( t );
             mesh->SetCell( cellId, c );
             cellId++;

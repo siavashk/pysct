@@ -1,10 +1,11 @@
 #include "MatrixNxM.h"
-#include <alglib/blas.h>
-#include <alglib/svd.h>
+//#include <alglib/blas.h>
+//#include <alglib/svd.h>
+#include "linalg.h"
 #include <vector>
 
 using namespace std;
-using namespace ap;
+//using namespace ap;
 
 /****************************************************************************
  * Fonction:	Matrice::Matrice
@@ -16,12 +17,8 @@ Matrice::Matrice()
 {
 	lignes_ = 3;
 	colonnes_ = 3;
-	matrice_.setbounds(0,lignes_,0,colonnes_);
-	for (unsigned int i=0; i<lignes_; i++)
-	{
-		for (unsigned int j=0; j<colonnes_; j++)
-			matrice_(i,j) = 0.0;
-	}
+	auto all_zeros = std::vector<double>(0);
+	matrice_.setcontent(lignes_, colonnes_, all_zeros.data());
 }
 
 
@@ -36,12 +33,8 @@ Matrice::Matrice(unsigned int lignes, unsigned int colonnes)
 {
 	lignes_ = lignes;
 	colonnes_ = colonnes;
-	matrice_.setbounds(0,lignes_-1,0,colonnes_-1);
-	for (unsigned int i=0; i<lignes_; i++)
-	{
-		for (unsigned int j=0; j<colonnes_; j++)
-			matrice_(i,j) = 0.0;
-	}
+	auto all_zeros = std::vector<double>(0);
+	matrice_.setcontent(lignes_, colonnes_, all_zeros.data());
 }
 
 /****************************************************************************
@@ -51,18 +44,14 @@ Matrice::Matrice(unsigned int lignes, unsigned int colonnes)
  *				- (unsigned int) colonne: nombre de colonne
  * Retour:		aucun
  ****************************************************************************/
-Matrice::Matrice(real_2d_array m, unsigned int lignes, unsigned int colonnes, bool newMatrice)
+Matrice::Matrice(alglib::real_2d_array m, unsigned int lignes, unsigned int colonnes, bool newMatrice)
 {
 	lignes_ = lignes;
 	colonnes_ = colonnes;
     if (newMatrice)
-    {
-        matrice_.setbounds(0, lignes-1, 0, colonnes-1);
-        for (int i=0; i<lignes; i++) {
-            for (int j=0; j<colonnes; j++) matrice_(i,j) = m(i,j);
-        }
-    }
-	else matrice_ = m;
+		matrice_.setcontent(lignes_, colonnes_, *m.c_ptr()->ptr.pp_double);
+	else 
+		matrice_ = m;
 }
 
 
@@ -76,12 +65,7 @@ Matrice::Matrice(const Matrice& uneMatrice)
 {
 	lignes_ = uneMatrice.lignes_;
 	colonnes_ = uneMatrice.colonnes_;
-	matrice_.setbounds(0,lignes_-1,0,colonnes_-1);
-	for (unsigned int i=0; i<lignes_; i++)
-	{
-		for (unsigned int j=0; j<colonnes_; j++)
-			matrice_(i,j) = uneMatrice.matrice_(i,j);
-	}
+	matrice_.setcontent(lignes_, colonnes_, *uneMatrice.matrice_.c_ptr()->ptr.pp_double);
 }
 
 
@@ -119,12 +103,7 @@ void Matrice::operator=(const Matrice& uneMatrice)
 {
 	lignes_ = uneMatrice.lignes_;
 	colonnes_ = uneMatrice.colonnes_;
-	matrice_.setbounds(0,lignes_-1,0,colonnes_-1);
-	for (unsigned int i=0; i<lignes_; i++)
-	{
-		for (unsigned int j=0; j<colonnes_; j++)
-			matrice_(i,j) = uneMatrice.matrice_(i,j);
-	}
+	matrice_.setcontent(lignes_, colonnes_, *uneMatrice.matrice_.c_ptr()->ptr.pp_double);
 }
 
 
@@ -139,19 +118,22 @@ Matrice Matrice::operator*(const Matrice& uneMatrice)
 	Matrice result;
 	if (uneMatrice.lignes_ == colonnes_) {
 		result = Matrice(lignes_,uneMatrice.colonnes_);
-        real_1d_array work; work.setbounds(0,lignes_);
-        for (int k=0; k<lignes_; k++) work(k) = 0.0;
+        
+		alglib::real_1d_array work;
+		auto all_zeros = std::vector<double>(0);
+		work.setcontent(lignes_, all_zeros.data());
+        
         //matrixmatrixmultiply(matrice_,0,lignes_-1,0,colonnes_-1,0,uneMatrice.matrice_,false,uneMatrice.lignes_-1,0,uneMatrice.colonnes_-1,0,1.0,result.matrice_,0,lignes_-1,false,uneMatrice.colonnes_-1,1.0,work);
 		//rmatrixgemm(lignes_,uneMatrice.colonnes_,colonnes_,1,matrice_,0,0,0,uneMatrice.matrice_,0,0,0,0,result.matrice_,0,0);
-		for (int i=0; i<lignes_; i++) {
-			for (int j=0; j<uneMatrice.colonnes_; j++) {
-				for (int k=0; k<colonnes_; k++)
-					result.matrice_(i,j) += matrice_(i,k)*uneMatrice.matrice_(k,j);
+		for (size_t i = 0; i < lignes_; i++) {
+			for (size_t j = 0; j < uneMatrice.colonnes_; j++) {
+				for (size_t k = 0; k < colonnes_; k++)
+					result.matrice_(i,j) += matrice_(i,k) * uneMatrice.matrice_(k,j);
 			}
 		}
 	}
 	else {
-		cerr	<< "Erreur lors de la multiplication des matrices. Les dimensions doivent etre correctes." << endl
+		cerr	<< "Error when multiplying matrices. The dimensions must match." << endl
 				<< "(" << lignes_ << "," << colonnes_ << ") * (" << uneMatrice.lignes_ << "," << uneMatrice.colonnes_ << ")" << endl;
 	}
 	return result;
@@ -170,8 +152,8 @@ Matrice Matrice::operator+(const Matrice& uneMatrice)
 	if (uneMatrice.lignes_ == lignes_ && uneMatrice.colonnes_ == colonnes_) {
         
 		result = Matrice(lignes_,colonnes_);
-		for (int i=0; i<lignes_; i++) {
-			for (int j=0; j<uneMatrice.colonnes_; j++)
+		for (size_t i=0; i<lignes_; i++) {
+			for (size_t j=0; j<uneMatrice.colonnes_; j++)
 				result.matrice_(i,j) = matrice_(i,j) + uneMatrice.matrice_(i,j);
 		}
 	}
@@ -194,8 +176,8 @@ Matrice Matrice::operator-(const Matrice& uneMatrice)
 	if (uneMatrice.lignes_ == lignes_ && uneMatrice.colonnes_ == colonnes_) {
         
 		result = Matrice(lignes_,colonnes_);
-		for (int i=0; i<lignes_; i++) {
-			for (int j=0; j<uneMatrice.colonnes_; j++)
+		for (size_t i=0; i<lignes_; i++) {
+			for (size_t j=0; j<uneMatrice.colonnes_; j++)
 				result.matrice_(i,j) = matrice_(i,j) - uneMatrice.matrice_(i,j);
 		}
 	}
@@ -216,8 +198,8 @@ Matrice Matrice::operator-(const Matrice& uneMatrice)
 Matrice Matrice::operator/(double valeur)
 {
 	Matrice result = Matrice(*this);
-	for (int i=0; i<lignes_; i++) {
-		for (int j=0; j<colonnes_; j++)
+	for (size_t i=0; i<lignes_; i++) {
+		for (size_t j=0; j<colonnes_; j++)
 			result.matrice_(i,j) /= valeur;
 	}
 	return result;
@@ -233,8 +215,8 @@ Matrice Matrice::operator/(double valeur)
 Matrice Matrice::transpose()
 {
 	Matrice result = Matrice(colonnes_,lignes_);
-	for (int i=0; i<lignes_; i++) {
-		for (int j=0; j<colonnes_; j++)
+	for (size_t i=0; i<lignes_; i++) {
+		for (size_t j=0; j<colonnes_; j++)
 			result.matrice_(j,i) = matrice_(i,j);
 	}
 	return result;
@@ -249,10 +231,10 @@ Matrice Matrice::transpose()
  ****************************************************************************/
 double Matrice::norm()
 {
-	float result = 0.0;
+	double result = 0.0;
 	if (lignes_ == 1) {
 		for (unsigned int i=0; i<colonnes_; i++)
-			result += matrice_(0,i)*matrice_(0,i);
+			result += matrice_(0,i) * matrice_(0,i);
 	}
 	else if (colonnes_ == 1) {
 		for (unsigned int i=0; i<lignes_; i++)
@@ -305,14 +287,14 @@ Matrice Matrice::pinv(double tol)
         result = (*this).transpose().pinv(tol).transpose();
     else
     {
-        real_1d_array w;
-        real_2d_array u, vt;
-        rmatrixsvd(matrice_,lignes_,colonnes_,2,2,2,w,u,vt);
+        alglib::real_1d_array w;
+        alglib::real_2d_array u, vt;
+        alglib::rmatrixsvd(matrice_, lignes_, colonnes_, 2, 2, 2, w, u, vt);
         
         double sum_s = 0.0;
         vector<double> s;
         int r = 0;
-        for (int i=0; i<colonnes_; i++)
+        for (size_t i=0; i<colonnes_; i++)
         {
             if (w(i) > tol) r++;
             s.push_back(w(i));
@@ -320,8 +302,9 @@ Matrice Matrice::pinv(double tol)
         
         if (r == 0) {
             result = Matrice(lignes_,colonnes_);
-            for (int x=0; x<lignes_; x++) {
-                for (int y=0; y<colonnes_; y++) result(x,y) = 0.0;
+            for (unsigned int x=0; x<lignes_; x++) {
+                for (unsigned int y=0; y<colonnes_; y++) 
+					result(x, y) = 0.0;
             }
         }
         else {

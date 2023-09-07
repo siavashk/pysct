@@ -13,20 +13,20 @@
 #include <cmath>
 
 
-#include <alglib/ap.h>
+#include "ap.h"
 
 class Matrice
 {
 public:
 	Matrice();
 	Matrice(unsigned int lignes, unsigned int colonnes);
-	Matrice(ap::real_2d_array m, unsigned int lignes, unsigned int colonnes, bool newMatrice=false);
+	Matrice(alglib::real_2d_array m, unsigned int lignes, unsigned int colonnes, bool newMatrice=false);
 	Matrice(const Matrice& uneMatrice);
 	~Matrice();
 
 	unsigned int getNombreLignes() { return lignes_; };
 	unsigned int getNombreColonnes() { return colonnes_; };
-	ap::real_2d_array& getMatrice() { return matrice_; };
+	alglib::real_2d_array& getMatrice() { return matrice_; };
 
 	double& operator()(unsigned int ligne, unsigned int colonne);
 	void operator=(const Matrice& uneMatrice);
@@ -43,7 +43,7 @@ public:
 	Matrice pinv(double tol=1e-15);
 
 private:
-	ap::real_2d_array matrice_;
+	alglib::real_2d_array matrice_;
 	unsigned int lignes_;
 	unsigned int colonnes_;
 };

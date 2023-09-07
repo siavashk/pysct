@@ -347,7 +347,8 @@ public:
         for (int k=0; k<nbPoint; k++)
         {
             std::vector<float> profilIntensite;
-            angle = 2*M_PI*k/(double)nbPoint;
+            const double pi = std::atan(1.0) * 4;
+            angle = 2 * pi * k / (double)nbPoint;
             trZ[0] = cos(angle), trZ[1] = sin(angle), trZ[3] = -sin(angle), trZ[4] = cos(angle);
             for (double l=0.0; l<=2.5*rayon_; l+=1) {
                 CVector3 pointS_temp = trZ*CVector3(l,0.0,0.0)+centerImage;
@@ -412,6 +413,10 @@ public:
         ImageType::IndexType ind;
 		double value;
 		CVector3 centerImage = CVector3(((size_[0]-1)/2),((size_[1]-1)/2),((size_[2]-1)/2));
+
+        const double pi = std::atan(1.0) * 4;
+        const double sigma2 = sigma * sigma;
+
         for (unsigned int x=0; x<size_[0]; x++)
         {
             for (unsigned int y=0; y<size_[1]; y++)
@@ -419,8 +424,11 @@ public:
                 for (unsigned int z=0; z<size_[2]; z++)
                 {
                     ind[0] = x; ind[1] = y; ind[2] = z;
-					value = exp(-(x-centerImage[0])*(x-centerImage[0])/(2*sigma*sigma)-(y-centerImage[1])*(y-centerImage[1])/(2*sigma*sigma))/(2*M_PI*sigma*sigma);
-                    image_->SetPixel(ind,value);
+                    double xDiff2 = (x - centerImage[0]) * (x - centerImage[0]);
+                    double yDiff2 = (y - centerImage[1]) * (y - centerImage[1]);
+                    double diff2 = 0.5 * (xDiff2 + yDiff2) / sigma2;
+					value = 0.5 * exp(-diff2) / (pi * sigma2);
+                    image_->SetPixel(ind, value);
                 }
             }
         }

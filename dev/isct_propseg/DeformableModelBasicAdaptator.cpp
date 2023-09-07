@@ -362,10 +362,11 @@ double DeformableModelBasicAdaptator::adaptation()
 		}
 		vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
 		polys = normales->GetPolys();
-		vtkIdType nbTriangle, *po;
+		vtkIdType nbTriangle;
+		const vtkIdType* po;
 		for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 		{
-			polys->GetCell(4*i,nbTriangle,po);
+			polys->GetCell(4 * i, nbTriangle, po);
 			meshOutput_->addTriangle(po[0],po[1],po[2]);
 		}
 		meshOutput_->setLabel(2);

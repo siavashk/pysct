@@ -266,7 +266,7 @@ unsigned int Orientation::houghTransformCircles(ImageType2D* im, unsigned int nu
 	houghfilter->Update();
 	
     
-	const double nPI = 4.0 * vcl_atan( 1.0 );
+	const double nPI = 4.0 * std::atan( 1.0 );
 	ImageType2D::IndexType index;
     
 	ImageType2D::Pointer m_Accumulator= houghfilter->GetOutput();

@@ -350,7 +350,9 @@ void Mesh::read(string filename)
 	if (data->GetNumberOfPolys() == 0) {
 		polys = data->GetStrips();
 		vtkSmartPointer<vtkCellArray> polytemp = vtkSmartPointer<vtkCellArray>::New();
-		vtkIdType nbTriangle, *po;
+		vtkIdType nbTriangle; 
+		const vtkIdType* po;
+		
 		vtkIdType pts[3];
 		for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 		{
@@ -387,17 +389,13 @@ void Mesh::read(string filename)
 	if (verbose_) cout << "Nombre de points : " << points->GetNumberOfPoints() << endl;
 	if (verbose_) cout << "Nombre de triangles : " << polys->GetNumberOfCells() << endl;
 
-	vtkIdType nbTriangle, *po;
-	int nVert;
+	vtkIdType nbTriangle;
+	const vtkIdType* po;
 	for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 	{
 		polys->GetNextCell(nbTriangle,po);
 		addTriangle(po[0],po[1],po[2]);
 	}
-
-	/*cout << "Calcul des connectivites...";
-	computeConnectivity();
-	cout << " Done" << endl;*/
 }
 
 
@@ -443,7 +441,7 @@ CMatrix4x4 Mesh::ICP(Mesh *vTarget)
 	CMatrix4x4 transformation;
 	for (int i=0; i<4; i++) {
 		for (int j=0; j<4; j++)
-			transformation[4*j+i] = (*m)[i][j];
+			transformation[4*j+i] = m->GetElement(i, j);
 	}
 	
 	return transformation;
@@ -515,7 +513,8 @@ void Mesh::decimation(float nb)
 	}
 	polys = decimated->GetPolys();
 	vtkSmartPointer<vtkIdList> cells = vtkSmartPointer<vtkIdList>::New();
-	vtkIdType nbTriangle, *p;
+	vtkIdType nbTriangle;
+	const vtkIdType* p;
 	for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 	{
 		polys->GetCell(4*i,nbTriangle,p);
@@ -595,10 +594,11 @@ void Mesh::subdivision(int numberOfSubdivision, bool computeFinalMesh)
 		}
 		polys = subdivised->GetPolys();
 		vtkSmartPointer<vtkIdList> cells = vtkSmartPointer<vtkIdList>::New();
-		vtkIdType nbTriangle, *p;
+		vtkIdType nbTriangle;
+		const vtkIdType* p;
 		for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 		{
-			polys->GetCell(4*i,nbTriangle,p);
+			polys->GetCell(4*i, nbTriangle, p);
 			addTriangle(p[0],p[1],p[2]);
 		}
  
@@ -619,7 +619,8 @@ void Mesh::subdivision(int numberOfSubdivision, bool computeFinalMesh)
 		}
 		polys = subdivised->GetPolys();
 		vtkSmartPointer<vtkIdList> cells = vtkSmartPointer<vtkIdList>::New();
-		vtkIdType nbTriangle, *p;
+		vtkIdType nbTriangle;
+		const vtkIdType* p;
 		for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 		{
 			polys->GetCell(4*i,nbTriangle,p);
@@ -683,7 +684,8 @@ void Mesh::smoothing(int numberOfIterations)
 	}
 	polys = smoothed->GetPolys();
 	vtkSmartPointer<vtkIdList> cells = vtkSmartPointer<vtkIdList>::New();
-	vtkIdType nbTriangle, *p;
+	vtkIdType nbTriangle;
+	const vtkIdType* p;
 	for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 	{
 		polys->GetCell(4*i,nbTriangle,p);
@@ -753,7 +755,8 @@ void Mesh::computeMeshNormals()
 	}
 	polys = output->GetPolys();
 	vtkSmartPointer<vtkIdList> cells = vtkSmartPointer<vtkIdList>::New();
-	vtkIdType nbTriangle, *p;
+	vtkIdType nbTriangle;
+	const vtkIdType* p;
 	for (vtkIdType i = 0; i<polys->GetNumberOfCells(); i++)
 	{
 		polys->GetCell(4*i,nbTriangle,p);
@@ -842,7 +845,7 @@ double Mesh::computeStandardDeviationFromPixelsInside(ImageType::Pointer image)
     it.GoToBegin();
     while(!it.IsAtEnd())
     {
-        if (it.Get()==true)
+        if (it.Get())
         {
             ind = it.GetIndex();
             valueVoxels.push_back(image->GetPixel(ind));

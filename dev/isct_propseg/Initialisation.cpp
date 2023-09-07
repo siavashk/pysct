@@ -54,10 +54,6 @@ typedef itk::DiscreteGaussianImageFilter<ImageType2D, ImageType2D> SmoothFilterT
 typedef itk::ImageRegionConstIterator<BinaryImageType> ImageIterator;
 typedef itk::RescaleIntensityImageFilter< ImageType, ImageType > RescaleFilterType;
 
-double round(double number)
-{
-    return number < 0.0 ? ceil(number - 0.5) : floor(number + 0.5);
-}
 
 class Node
 {
@@ -546,7 +542,7 @@ unsigned int Initialisation::houghTransformCircles(ImageType2D* im, unsigned int
 	houghfilter->Update();
 	
     
-	const double nPI = 4.0 * vcl_atan( 1.0 );
+	const double nPI = 4.0 * std::atan( 1.0 );
 	ImageType2D::IndexType index;
     
 	ImageType2D::Pointer m_Accumulator= houghfilter->GetOutput();

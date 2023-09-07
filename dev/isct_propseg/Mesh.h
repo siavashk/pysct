@@ -52,7 +52,7 @@ public:
 	virtual int getNbrOfPoints() { return (int)points_.size(); };
 	virtual int getNbrOfTriangles() { return (int)triangles_.size()/3; };
 
-	virtual void save(std::string filename, ImageType::Pointer image_ref=0);
+	virtual void save(std::string filename, ImageType::Pointer image_ref=nullptr);
 	virtual void saveBYU(std::string filename);
 	virtual void read(std::string filename);
 

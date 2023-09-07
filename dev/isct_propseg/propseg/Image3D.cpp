@@ -30,7 +30,7 @@
 #include <vtkPointData.h>
 
 #include "Image3D.h"
-#include "util/Matrix3x3.h"
+#include "../util/Matrix3x3.h"
 #include "OrientImage.h"
 
 using namespace std;

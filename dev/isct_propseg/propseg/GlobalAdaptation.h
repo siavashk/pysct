@@ -18,7 +18,7 @@
 #include "Image3D.h"
 #include "SpinalCord.h"
 #include "Vertex.h"
-#include "util/Matrix3x3.h"
+#include "../util/Matrix3x3.h"
 #include "SCRegion.h"
 
 

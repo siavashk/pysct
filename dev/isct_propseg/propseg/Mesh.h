@@ -15,7 +15,7 @@
 #include <vtkPolyData.h>
 
 #include "Vertex.h"
-#include "util/Vector3.h"
+#include "../util/Vector3.h"
 #include "referential.h"
 
 

@@ -11,8 +11,8 @@
 
 #include "Image3D.h"
 #include "SpinalCord.h"
-#include "util/Vector3.h"
-#include "util/Matrix4x4.h"
+#include "../util/Vector3.h"
+#include "../util/Matrix4x4.h"
 
 typedef itk::Image< double, 3 >	ImageType;
 typedef itk::Image< double, 2 >	ImageType2D;

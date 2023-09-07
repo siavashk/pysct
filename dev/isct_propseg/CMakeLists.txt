@@ -11,17 +11,13 @@ FIND_PACKAGE(ITK REQUIRED)
 INCLUDE(${ITK_USE_FILE})
 
 FIND_PACKAGE(VTK REQUIRED)
-INCLUDE(${VTK_USE_FILE})
 
 add_subdirectory(util)
 add_subdirectory(alglib)
+add_subdirectory(propseg)
 
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-file(GLOB HXX_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.hxx)
-list(APPEND HEADER_FILES ${HXX_FILES})
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 
-target_link_libraries(isct_propseg ${VTK_LIBRARIES} ${ITK_LIBRARIES} util alglib)
-vtk_module_autoinit(TARGETS isct_propseg MODULES ${VTK_LIBRARIES})
+target_link_libraries(isct_propseg propseg)

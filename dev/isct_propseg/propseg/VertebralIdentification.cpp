@@ -14,7 +14,7 @@
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkMedianImageFilter.h>
 
-#include "util/MatrixNxM.h"
+#include "../util/MatrixNxM.h"
 using namespace std;
 
 typedef itk::MedianImageFilter<ImageType, ImageType > MedianFilterType;

@@ -14,7 +14,7 @@
 
 #include <itkImage.h>
 
-#include "util/Vector3.h"
+#include "../util/Vector3.h"
 
 
 typedef itk::Image< double, 3 >	ImageType;

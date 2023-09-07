@@ -27,8 +27,8 @@
 #include "Image3D.h"
 #include "Mesh.h"
 #include "Vertex.h"
-#include "util/Matrix3x3.h"
-#include "util/MatrixNxM.h"
+#include "../util/Matrix3x3.h"
+#include "../util/MatrixNxM.h"
 #include "SpinalCord.h"
 
 typedef itk::CovariantVector<double,3> PixelType;

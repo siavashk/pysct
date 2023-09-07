@@ -20,8 +20,8 @@
 #include <itkVectorLinearInterpolateImageFunction.h>
 #include <itkCastImageFilter.h>
 
-#include "util/Vector3.h"
-#include "util/Matrix3x3.h"
+#include "../util/Vector3.h"
+#include "../util/Matrix3x3.h"
 #include "Mesh.h"
 //
 

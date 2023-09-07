@@ -10,8 +10,8 @@
 #include <ostream>
 #include <string>
 
-#include "util/Vector3.h"
-#include "util/Matrix4x4.h"
+#include "../util/Vector3.h"
+#include "../util/Matrix4x4.h"
 
 
 /*!

@@ -16,7 +16,7 @@
 #include <vtkPolyData.h>
 
 #include "Mesh.h"
-#include "util/Vector3.h"
+#include "../util/Vector3.h"
 #include "Image3D.h"
 
 typedef itk::Image< double, 3 >	ImageType;

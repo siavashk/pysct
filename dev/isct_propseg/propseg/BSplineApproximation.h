@@ -15,7 +15,7 @@
 #include <itkBSplineScatteredDataPointSetToImageFilter.h>
 #include <itkBSplineControlPointImageFunction.h>
 
-#include "util/Vector3.h"
+#include "../util/Vector3.h"
 
 
 const unsigned int ParametricDimension = 1;

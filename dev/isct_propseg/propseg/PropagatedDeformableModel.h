@@ -11,7 +11,7 @@
 #include <string>
 
 #include "Image3D.h"
-#include "util/Vector3.h"
+#include "../util/Vector3.h"
 #include "SpinalCord.h"
 #include "BSplineApproximation.h"
 

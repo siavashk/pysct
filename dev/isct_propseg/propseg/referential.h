@@ -7,9 +7,9 @@
  * \author Benjamin De Leener - NeuroPoly (http://www.neuropoly.info)
  */
 
-#include "util/Matrix4x4.h"
-#include "util/Matrix3x3.h"
-#include "util/Vector3.h"
+#include "../util/Matrix4x4.h"
+#include "../util/Matrix3x3.h"
+#include "../util/Vector3.h"
 
 /*!
  * \class Referential

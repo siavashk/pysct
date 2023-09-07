@@ -33,7 +33,8 @@ Matrice::Matrice(unsigned int lignes, unsigned int colonnes)
 {
 	lignes_ = lignes;
 	colonnes_ = colonnes;
-	auto all_zeros = std::vector<double>(0);
+	auto all_zeros = std::vector<double>(lignes * colonnes);
+	std::fill(all_zeros.begin(), all_zeros.end(), 0);
 	matrice_.setcontent(lignes_, colonnes_, all_zeros.data());
 }
 

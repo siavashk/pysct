@@ -19,7 +19,6 @@
  *
  * MANDATORY ARGUMENTS:
  *		* -i <inputfilename>            (no default)
- *      * -i-dicom <inputfolderpath>    (replace -i, read DICOM series, output still in NIFTI)
  *		* -o <outputfolderpath>         (default is current folder)
  *		* -t <imagetype> {t1,t2}        (string, type of image contrast, t2: cord dark / CSF bright ; t1: cord bright / CSF dark, no default)
  *		* -down <down_slice>            (int, down limit of the propagation, default is 0)
@@ -136,10 +135,6 @@ typedef itk::Image< unsigned char, 3 >	BinaryImageType;
 typedef itk::ImageFileReader<BinaryImageType> BinaryReaderType;
 typedef itk::ImageRegionConstIterator<BinaryImageType> BinaryImageIterator;
 
-typedef itk::ImageSeriesReader< ImageType > DICOMReaderType;
-//typedef itk::GDCMImageIO ImageIOType;
-//typedef itk::GDCMSeriesFileNames InputNamesGeneratorType;
-
 bool extractPointAndNormalFromMask(string filename, CVector3 &point, CVector3 &normal1, CVector3 &normal2);
 vector<CVector3> extractCenterline(string filename);
 vector<CVector3> extractPointsFromMask(string filename);
@@ -186,7 +181,6 @@ void help()
     
     cout << "MANDATORY ARGUMENTS" << endl;
     cout << StrPad("  -i <inputfilename>",30) << StrPad("no default",70,StrPad("",30)) << endl;
-    //cout << "\t-i-dicom <inputfolderpath> \t (replace -i, read DICOM series, output still in NIFTI)" << endl;
     cout << StrPad("  -o <outputfolderpath>",30) << StrPad("default is current folder",70,StrPad("",30)) << endl;
     cout << StrPad("  -t {t1,t2}",30) << StrPad("string, type of image contrast, t2: cord dark / CSF bright ; t1: cord bright / CSF dark, no default",70,StrPad("",30)) << endl;
     cout << endl;
@@ -242,7 +236,7 @@ int main(int argc, char *argv[])
     double typeImageFactor = 0.0, initialisation = 0.5;
     int downSlice = -10000, upSlice = 10000;
     string suffix;
-	bool input_dicom = false, output_detection = false, output_detection_nii = false, output_mesh = false, output_centerline_binary = false, output_centerline_coord = false, output_cross = false, init_with_centerline = false, init_with_mask = false, verbose = false, output_init_tube = false, completeCenterline = false, init_validation = false, low_res_mesh = false, CSF_segmentation = false;
+	bool output_detection = false, output_detection_nii = false, output_mesh = false, output_centerline_binary = false, output_centerline_coord = false, output_cross = false, init_with_centerline = false, init_with_mask = false, verbose = false, output_init_tube = false, completeCenterline = false, init_validation = false, low_res_mesh = false, CSF_segmentation = false;
 	int gapInterSlices = 4, nbSlicesInitialisation = 5;
 	double radius = 4.0;
     int numberOfPropagationIteration = 200;
@@ -255,11 +249,6 @@ int main(int argc, char *argv[])
         if (strcmp(argv[i],"-i")==0) {
             i++;
             inputFilename = argv[i];
-        }
-        else if (strcmp(argv[i],"-i-dicom")==0) {
-            i++;
-            //inputFilename = argv[i];
-            //input_dicom = true;
         }
         else if (strcmp(argv[i],"-o")==0) {
             i++;
@@ -391,7 +380,7 @@ int main(int argc, char *argv[])
     }
     if (inputFilename == "")
     {
-        cerr << "Input filename or folder (if DICOM) not provided" << endl;
+        cerr << "Input filename" << endl;
 		help();
         return EXIT_FAILURE;
     }
@@ -436,42 +425,19 @@ int main(int argc, char *argv[])
 	// typeImageFactor depend of contrast type and is equal to +1 when CSF is brighter than spinal cord and equal to -1 inversely
     ImageType::Pointer initialImage, image = ImageType::New();
     
-    if (input_dicom)
-    {
-        /*ImageIOType::Pointer gdcmIO = ImageIOType::New();
-        InputNamesGeneratorType::Pointer inputNames = InputNamesGeneratorType::New();
-        inputNames->SetInputDirectory( inputFilename );
-        
-        const DICOMReaderType::FileNamesContainer & filenames = inputNames->GetInputFileNames();
-        
-        DICOMReaderType::Pointer reader = DICOMReaderType::New();
-        reader->SetImageIO( gdcmIO );
-        reader->SetFileNames( filenames );
-        try
-        {
-            reader->Update();
-        } catch (itk::ExceptionObject &excp) {
-            std::cerr << "Exception thrown while reading the DICOM series" << std::endl;
-            std::cerr << excp << std::endl;
-            return EXIT_FAILURE;
-        }
-        initialImage = reader->GetOutput();*/
-    }
-    else
-    {
-        ReaderType::Pointer reader = ReaderType::New();
-        itk::NiftiImageIO::Pointer io = itk::NiftiImageIO::New();
-        reader->SetImageIO(io);
-        reader->SetFileName(inputFilename);
-        try {
-            reader->Update();
-        } catch( itk::ExceptionObject & e ) {
-            cerr << "Exception caught while reading input image" << endl;
-            cerr << e << endl;
-            return EXIT_FAILURE;
-        }
-        initialImage = reader->GetOutput();
-    }
+	ReaderType::Pointer reader = ReaderType::New();
+	itk::NiftiImageIO::Pointer io = itk::NiftiImageIO::New();
+	reader->SetImageIO(io);
+	reader->SetFileName(inputFilename);
+	try {
+		reader->Update();
+	}
+	catch (itk::ExceptionObject& e) {
+		cerr << "Exception caught while reading input image" << endl;
+		cerr << e << endl;
+		return EXIT_FAILURE;
+	}
+	initialImage = reader->GetOutput();
     
     // Change orientation of input image to AIL. Output images will have the same orientation as input image
     OrientImage<ImageType> orientationFilter;

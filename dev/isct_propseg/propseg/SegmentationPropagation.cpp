@@ -1,11 +1,10 @@
 #include "SegmentationPropagation.h"
 
-SegmentationPropagation::SegmentationPropagation(ImageType::Pointer image)
+SegmentationPropagation::SegmentationPropagation()
 {
 	gradientMapFilterPointer_ = VectorGradientFilterType::New();
 	gradientMagnitudeFilterPointer_ = GradientMagnitudeFilterType::New();
 
-	performInitialization(image);
 	propagtedDeformableModelPointer_ = std::make_unique<PropagatedDeformableModel>(
 		radialResolution_,
 		axialResolution_,
@@ -15,6 +14,28 @@ SegmentationPropagation::SegmentationPropagation(ImageType::Pointer image)
 		axialStep_,
 		propagationLength_
 	);
+
+	propagtedDeformableModelPointer_->setMinContrast(minContrast_);
+	propagtedDeformableModelPointer_->setStretchingFactor(stretchingFactor_);
+	propagtedDeformableModelPointer_->setUpAndDownLimits(downSlice_ - 5, upSlice_ + 5);
+}
+
+BinaryImageType::Pointer SegmentationPropagation::run(ImageType::Pointer image)
+{
+	performInitialization(image);
+	initialisationPointer_->getPoints(point_, normal1_, normal2_, radius_, stretchingFactor_);
+	std::unique_ptr<Image3D> image3D = makeImage3D(image);
+
+	propagtedDeformableModelPointer_->setInitialPointAndNormals(point_, normal1_, normal2_);
+	propagtedDeformableModelPointer_->setImage3D(image3D.get());
+	propagtedDeformableModelPointer_->adaptationGlobale();
+	propagtedDeformableModelPointer_->computeMeshInitial();
+	propagtedDeformableModelPointer_->rafinementGlobal();
+
+	SpinalCord* spinalCord = propagtedDeformableModelPointer_->getOutputFinal();
+	BinaryImageType::Pointer segmentration = image3D->TransformMeshToBinaryImage(spinalCord);
+
+	return segmentration;
 }
 
 void SegmentationPropagation::performInitialization(ImageType::Pointer image)
@@ -27,8 +48,6 @@ void SegmentationPropagation::performInitialization(ImageType::Pointer image)
 	{
 		std::cerr << "Error: unable to initialize." << std::endl;
 	}
-
-	initialisationPointer_->getPoints(point_, normal1_, normal2_, radius_, stretchingFactor_);
 }
 
 std::unique_ptr<Image3D> SegmentationPropagation::makeImage3D(ImageType::Pointer image)

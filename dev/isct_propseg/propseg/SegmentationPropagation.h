@@ -31,8 +31,10 @@ using VectorGradientFilterType = itk::GradientImageFilter< ImageType, float, dou
 class SegmentationPropagation 
 {
 public:
-	SegmentationPropagation(ImageType::Pointer image);
+	SegmentationPropagation();
 	~SegmentationPropagation() {};
+
+	BinaryImageType::Pointer run(ImageType::Pointer image);
 
 private:
 	void performInitialization(ImageType::Pointer image);

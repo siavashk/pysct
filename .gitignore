@@ -50,3 +50,4 @@ sct_example_data/
 documentation/build
 
 builds/*
+build/*

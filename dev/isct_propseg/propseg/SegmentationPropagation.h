@@ -13,15 +13,22 @@
 #include <itkImage.h>
 #include <itkGradientMagnitudeImageFilter.h>
 #include <itkGradientImageFilter.h>
+#include <itkIntensityWindowingImageFilter.h>
+#include <itkMedianImageFilter.h>
+#include <itkMinimumMaximumImageCalculator.h>
 
 #include <vtkSmartPointer.h>
 
 #include "Initialisation.h"
 #include "Image3D.h"
+#include "OrientImage.h"
 #include "PropagatedDeformableModel.h"
 
 
 using ImageType = itk::Image< double, 3 >;
+using MedianFilterType = itk::MedianImageFilter< ImageType, ImageType >;
+using MinMaxCalculatorType = itk::MinimumMaximumImageCalculator< ImageType >;
+using RescaleFilterType = itk::IntensityWindowingImageFilter< ImageType, ImageType >;
 using GradientPixelType = itk::CovariantVector< double, 3 >;
 using GradientImageType = itk::Image< GradientPixelType, 3 >;
 using GradientMagnitudeFilterType = itk::GradientMagnitudeImageFilter< ImageType, ImageType >;
@@ -40,8 +47,14 @@ private:
 	void performInitialization(ImageType::Pointer image);
 	std::unique_ptr<Image3D> makeImage3D(ImageType::Pointer image);
 
+	MedianFilterType::Pointer medianFilter_;
+	MinMaxCalculatorType::Pointer minMaxCalculator_;
+	RescaleFilterType::Pointer rescaleFilter_;
+
 	GradientMagnitudeFilterType::Pointer gradientMagnitudeFilterPointer_;
 	VectorGradientFilterType::Pointer gradientMapFilterPointer_;
+
+	std::unique_ptr<OrientImage<ImageType>> orientationFilterPointer_;
 
 	std::unique_ptr<Initialisation> initialisationPointer_;
 	std::unique_ptr<PropagatedDeformableModel> propagtedDeformableModelPointer_;
@@ -64,7 +77,7 @@ private:
 	const int axialResolution_ = 3;
 	const int numberOfDeformIteration_ = 3;
 	const int numberOfPropagationIteration_ = 200;
-	const double axialStep_ = 800.0; 
+	const double axialStep_ = 6.0; 
 	const double propagationLength_ = 800.0;
 };
 

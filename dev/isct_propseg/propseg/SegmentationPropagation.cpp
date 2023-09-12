@@ -5,6 +5,41 @@ SegmentationPropagation::SegmentationPropagation()
 	gradientMapFilterPointer_ = VectorGradientFilterType::New();
 	gradientMagnitudeFilterPointer_ = GradientMagnitudeFilterType::New();
 
+	orientationFilterPointer_ = std::make_unique<OrientImage<ImageType>>();
+	medianFilter_ = MedianFilterType::New();
+
+	MedianFilterType::InputSizeType radiusMedianFilter;
+	radiusMedianFilter.Fill(2);
+	medianFilter_->SetRadius(radiusMedianFilter);
+
+	minMaxCalculator_ = MinMaxCalculatorType::New();
+	rescaleFilter_ = RescaleFilterType::New();
+}
+
+BinaryImageType::Pointer SegmentationPropagation::run(ImageType::Pointer image)
+{
+	orientationFilterPointer_->setInputImage(image);
+	orientationFilterPointer_->orientation(itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_AIL);
+
+	medianFilter_->SetInput(orientationFilterPointer_->getOutputImage());
+	medianFilter_->Update();
+
+	minMaxCalculator_->SetImage(medianFilter_->GetOutput());
+	minMaxCalculator_->Compute();
+
+	rescaleFilter_->SetInput(orientationFilterPointer_->getOutputImage());
+	rescaleFilter_->SetWindowMinimum(minMaxCalculator_->GetMinimum());
+	rescaleFilter_->SetWindowMaximum(minMaxCalculator_->GetMaximum());
+	rescaleFilter_->SetOutputMinimum(0);
+	rescaleFilter_->SetOutputMaximum(1000);
+	rescaleFilter_->Update();
+
+	ImageType::Pointer rescaledImage = rescaleFilter_->GetOutput();
+	
+	performInitialization(rescaleFilter_->GetOutput());
+	initialisationPointer_->getPoints(point_, normal1_, normal2_, radius_, stretchingFactor_);
+	std::unique_ptr<Image3D> image3D = makeImage3D(image);
+
 	propagtedDeformableModelPointer_ = std::make_unique<PropagatedDeformableModel>(
 		radialResolution_,
 		axialResolution_,
@@ -13,23 +48,16 @@ SegmentationPropagation::SegmentationPropagation()
 		numberOfPropagationIteration_,
 		axialStep_,
 		propagationLength_
-	);
+		);
 
 	propagtedDeformableModelPointer_->setMinContrast(minContrast_);
 	propagtedDeformableModelPointer_->setStretchingFactor(stretchingFactor_);
 	propagtedDeformableModelPointer_->setUpAndDownLimits(downSlice_ - 5, upSlice_ + 5);
-}
-
-BinaryImageType::Pointer SegmentationPropagation::run(ImageType::Pointer image)
-{
-	performInitialization(image);
-	initialisationPointer_->getPoints(point_, normal1_, normal2_, radius_, stretchingFactor_);
-	std::unique_ptr<Image3D> image3D = makeImage3D(image);
 
 	propagtedDeformableModelPointer_->setInitialPointAndNormals(point_, normal1_, normal2_);
 	propagtedDeformableModelPointer_->setImage3D(image3D.get());
-	propagtedDeformableModelPointer_->adaptationGlobale();
 	propagtedDeformableModelPointer_->computeMeshInitial();
+	propagtedDeformableModelPointer_->adaptationGlobale();
 	propagtedDeformableModelPointer_->rafinementGlobal();
 
 	SpinalCord* spinalCord = propagtedDeformableModelPointer_->getOutputFinal();

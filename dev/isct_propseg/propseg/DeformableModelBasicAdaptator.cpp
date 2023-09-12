@@ -86,7 +86,10 @@ private:
 };
 
 
-DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(Image3D* image, Mesh* m) : image_(image), mesh_(m), meshBool_(true), numberOfIteration_(1)
+DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(
+	Image3D* 
+	image, Mesh* m
+) : image_(image), mesh_(m), meshBool_(true), numberOfIteration_(1)
 {
 	changedParameters_ = false;
 	contrast = 500;
@@ -101,7 +104,13 @@ DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(Image3D* image, Mes
 	beta = 0.0;
 }
 
-DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(Image3D* image, Mesh* m, int nbIteration, double contrast, bool computeFinalMesh) : image_(image), mesh_(m), meshBool_(computeFinalMesh), numberOfIteration_(nbIteration)
+DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(
+	Image3D* image, 
+	Mesh* m, 
+	int nbIteration, 
+	double contrast, 
+	bool computeFinalMesh
+) : image_(image), mesh_(m), meshBool_(computeFinalMesh), numberOfIteration_(nbIteration)
 {
 	changedParameters_ = false;
 	this->contrast = contrast;
@@ -119,7 +128,13 @@ DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(Image3D* image, Mes
 	beta = 0.0;
 }
 
-DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(Image3D* image, Mesh* m, int nbIteration, vector<pair<CVector3,double> > contrast, bool computeFinalMesh) : image_(image), mesh_(m), meshBool_(computeFinalMesh), numberOfIteration_(nbIteration)
+DeformableModelBasicAdaptator::DeformableModelBasicAdaptator(
+	Image3D* image, 
+	Mesh* m, 
+	int nbIteration, 
+	vector<pair<CVector3,double> > contrast, 
+	bool computeFinalMesh
+) : image_(image), mesh_(m), meshBool_(computeFinalMesh), numberOfIteration_(nbIteration)
 {
 	changedParameters_ = false;
     this->contrast = -1.0;

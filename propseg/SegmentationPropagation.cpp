@@ -2,6 +2,9 @@
 
 SegmentationPropagation::SegmentationPropagation()
 {
+	vtkOutputWindow::GetInstance()->SetGlobalWarningDisplay(0);
+	vtkObject::GlobalWarningDisplayOff();
+
 	gradientMapFilterPointer_ = VectorGradientFilterType::New();
 	gradientMagnitudeFilterPointer_ = GradientMagnitudeFilterType::New();
 

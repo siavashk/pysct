@@ -18,6 +18,8 @@
 #include <itkMinimumMaximumImageCalculator.h>
 
 #include <vtkSmartPointer.h>
+#include <vtkOutputWindow.h>
+#include <vtkObject.h>
 
 #include "Initialisation.h"
 #include "Image3D.h"
